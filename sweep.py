@@ -29,31 +29,37 @@ def checkString(str_list):
 
 # Run the script that includes all the commands for running the samples
 def read_script(file):
-    
     accuracy_list = []
     ind = 0
+
     with open(file, 'r') as f:
         commands = f.readlines()
 
         for command in commands:
             print(command)
             try:
-                # parse the relevant information 
-                result = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
+                # Execute the command
+                result = subprocess.Popen(command.strip(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+                stdout, stderr = result.communicate()
 
-                #letters_list = re.findall(r'tensor\(\[\[.*?\]\]\)\n([A-Za-z]+)', result.stdout)
-                matches = re.findall(r'([A-Z\n]+)\n-{7}', result.stdout)
+                if result.returncode != 0:
+                    print(f"Error executing command: {stderr}")
+                    continue
+
+                # Parse the relevant information
+                matches = re.findall(r'([A-Z\n]+)\n-{7}', stdout)
                 letters_list = [match.strip() for match in matches]
+                
                 print("Index: ", ind)
                 ind += 1
-                # All the string generate from the 10 samples
+                # All the string generated from the 10 samples
                 print(letters_list)
                 # Check the accuracy
                 accuracy = checkString(letters_list)
                 print("Accuracy:", accuracy)
                 accuracy_list.append(accuracy)
-            except subprocess.CalledProcessError as e:
-                print(f"Error executing command: {e}")
+            except Exception as e:
+                print(f"Exception occurred: {e}")
 
     # Calculate average accuracy
     average_accuracy = sum(accuracy_list) / len(accuracy_list) if accuracy_list else 0
