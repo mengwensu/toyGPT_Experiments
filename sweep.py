@@ -63,7 +63,6 @@ def read_script(file):
 
     # Calculate average accuracy
     average_accuracy = sum(accuracy_list) / len(accuracy_list) if accuracy_list else 0
-    print("Average Accuracy:", average_accuracy)
     return accuracy_list, average_accuracy
 
 
@@ -141,6 +140,7 @@ for i in range(16, 17):
             
         # Read accuracy from run_script.txt
         _, acc = read_script('run_script.txt')
+        print(i, "round", j, "average acc:", acc)
         avg_acc.append(acc)
         
         # After done with the testing the samples for the current trained dataset, delete ckpt.pkl file
@@ -151,8 +151,11 @@ for i in range(16, 17):
             print("File ckpt.pt not found")
 
     # Write results to log.txt
+
+    overall_acc = sum(avg_acc) / 5
+    print(i, "Overall Average Accuracy:", overall_acc)
     with open('log.txt', 'a') as f:
-        l = f"{i},{sum(acc)/5}\n"
+        l = f"{i},{overall_acc}\n"
         f.write(l)
 
 
