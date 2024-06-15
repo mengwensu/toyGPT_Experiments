@@ -87,62 +87,66 @@ def print_real_time_output(process):
 
 
 for i in range(256, 257):
-    print('Dat Size: ', i)
-    get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
-    
-    # Run prepare.py
-    command = 'python3 data/shakespeare_char/prepare.py'
-    prepare_run = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
-    print(prepare_run.stdout)
-
-    # If block size if less than default 32, find a smaller block size 
-    if i <= 64:
-        # block_size = i / 2 -1
-        # blk_str = '--block_size=' + block_size
-        # command = ['python3', 'train.py', 'config/train_shakespeare_char.py', blk_str]
-        # print('block size:', block_size)
-        # sample_run1 = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
-        # print(sample_run1.stdout)
-
-        # Adjust the block size``
-
-        block_size = i // 2 - 1
-        blk_str = f'--block_size={block_size}' 
-        print('block size:', block_size)
-        command = ['python3', 'train.py', 'config/train_shakespeare_char.py', blk_str]
-        # Start the subprocess and capture its output
-        train_run1 = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    avg_acc = []
+    for _ in range(5):
+        print('Data Size: ', i)
+        get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
         
-        # Print the output in real-time
-        print_real_time_output(train_run1)
-        train_run1.wait()
-    else:
-        # command = ['python3', 'train.py', 'config/train_shakespeare_char.py', '--block_size=32']
-        # print('block size:', 32)
-        # sample_run2 = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
-        # print(sample_run2.stdout)
+        # Run prepare.py
+        command = 'python3 data/shakespeare_char/prepare.py'
+        prepare_run = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
+        print(prepare_run.stdout)
 
-        command = ['python3', 'train.py', 'config/train_shakespeare_char.py', '--block_size=32']
-        print('block size:', 32)
-        train_run2 = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        # If block size if less than default 32, find a smaller block size 
+        if i <= 64:
+            # block_size = i / 2 -1
+            # blk_str = '--block_size=' + block_size
+            # command = ['python3', 'train.py', 'config/train_shakespeare_char.py', blk_str]
+            # print('block size:', block_size)
+            # sample_run1 = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
+            # print(sample_run1.stdout)
+
+            # Adjust the block size``
+
+            block_size = i // 2 - 1
+            blk_str = f'--block_size={block_size}' 
+            print('block size:', block_size)
+            command = ['python3', 'train.py', 'config/train_shakespeare_char.py', blk_str]
+            # Start the subprocess and capture its output
+            train_run1 = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            
+            # Print the output in real-time
+            print_real_time_output(train_run1)
+            train_run1.wait()
+        else:
+            # command = ['python3', 'train.py', 'config/train_shakespeare_char.py', '--block_size=32']
+            # print('block size:', 32)
+            # sample_run2 = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
+            # print(sample_run2.stdout)
+
+            command = ['python3', 'train.py', 'config/train_shakespeare_char.py', '--block_size=32']
+            print('block size:', 32)
+            train_run2 = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            
+            # Print the output in real-time
+            print_real_time_output(train_run2)
+            train_run2.wait()
+            
+        # Read accuracy from run_script.txt
+        _, acc = read_script('run_script.txt')
+        avg_acc.append(acc)
         
-        # Print the output in real-time
-        print_real_time_output(train_run2)
-        train_run2.wait()
-        
-    # Read accuracy from run_script.txt
-    _, acc = read_script('run_script.txt')
+        # After done with the testing the samples for the current trained dataset, delete ckpt.pkl file
+        try:
+            os.remove('out-shakespeare-char/ckpt.pt')
+            print("Deleted ckpt.pt")
+        except FileNotFoundError:
+            print("File ckpt.pt not found")
 
     # Write results to log.txt
-    # with open('log.txt', 'a') as f:
-    #     l = f"{i},{acc}\n"
-    #     f.write(l)
+    with open('log.txt', 'a') as f:
+        l = f"{i},{sum(acc)/5}\n"
+        f.write(l)
 
-    # After done with the testing the samples for the current trained dataset, delete ckpt.pkl file
-    try:
-        os.remove('out-shakespeare-char/ckpt.pt')
-        print("Deleted ckpt.pt")
-    except FileNotFoundError:
-        print("File ckpt.pt not found")
 
 
