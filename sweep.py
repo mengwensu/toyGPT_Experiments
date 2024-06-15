@@ -92,10 +92,11 @@ def print_real_time_output(process):
 # get_new_training_set("data/shakespeare_char/full_dataset.txt", 256)
 
 
-for i in range(256, 257):
+for i in range(16, 17):
     avg_acc = []
-    for _ in range(5):
-        print('Data Size: ', i)
+    print('Data Size: ', i)
+    for j in range(5):
+        print("ROUND", j)
         get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
         
         # Run prepare.py
