@@ -88,8 +88,6 @@ def print_real_time_output(process):
         print(line.strip())
 
 
-# get_new_training_set("data/shakespeare_char/full_dataset.txt", 256)
-
 
 for i in range(256, 257):
     avg_acc = []
