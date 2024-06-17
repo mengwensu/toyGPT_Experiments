@@ -40,7 +40,7 @@ def read_script(file):
             print(command)
             try:
                 # Execute the command
-                result = subprocess.Popen(command.strip(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+                result = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                 stdout, stderr = result.communicate()
 
                 if result.returncode != 0:
@@ -56,6 +56,7 @@ def read_script(file):
                 print("Index: ", ind)
                 ind += 1
                 # All the string generated from the 10 samples
+                # print(letters_list)
                 print(matches)
                 # Check the accuracy
                 accuracy = checkString(matches)
@@ -80,8 +81,6 @@ def get_new_training_set(dataset, size):
             f.write(i)
 
 
-# get_new_training_set("data/shakespeare_char/full_dataset.txt",0)
-# read_script("run_script.txt")
 
 def print_real_time_output(process):
     # Ensure that output from the process is processed correctly
@@ -90,11 +89,12 @@ def print_real_time_output(process):
     for line in iter(process.stderr.readline, ''):
         print(line.strip())
 
-for i in range(128, 129):
+
+for i in range(16, 17):
     avg_acc = []
     print('Data Size: ', i)
     for j in range(5):
-        print("ROUND", j)
+        print("ROUND", j + 1)
         get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
         
         # Run prepare.py
@@ -139,7 +139,7 @@ for i in range(128, 129):
             
         # Read accuracy from run_script.txt
         _, acc = read_script('run_script.txt')
-        print(i, "round", j, "average acc:", acc)
+        print(i, "round", j + 1, "average acc:", acc)
         avg_acc.append(acc)
         
         # After done with the testing the samples for the current trained dataset, delete ckpt.pkl file
