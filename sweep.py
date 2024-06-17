@@ -20,7 +20,7 @@ def checkString(str_list):
     correct = 0
     wrong = 0
     for s in str_list:
-        if s(len(s)) != '\n':
+        if s[len(s)] != '\n':
             correct += 1 
         else:
             wrong += 1
