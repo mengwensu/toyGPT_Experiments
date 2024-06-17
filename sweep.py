@@ -10,6 +10,9 @@ def generate_random_string():
 with open("run_script.txt", 'w') as f:
     for i in range(100):
         start = generate_random_string()
+        # python sample.py --out_dir=out-shakespeare-char --start="ABC" --num_samples=10 --max_new_tokens=2 --device=cpu
+
+
         s = f'python3 sample.py --out_dir=out-shakespeare-char --start="{start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
         f.write(s + '\n')
 
@@ -40,7 +43,7 @@ def read_script(file):
             print(command)
             try:
                 # Execute the command
-                result = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                result = subprocess.Popen(command.strip(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                 stdout, stderr = result.communicate()
 
                 if result.returncode != 0:
@@ -88,6 +91,7 @@ def print_real_time_output(process):
         print(line.strip())
     for line in iter(process.stderr.readline, ''):
         print(line.strip())
+
 
 
 for i in range(16, 17):
