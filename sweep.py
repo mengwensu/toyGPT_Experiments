@@ -10,7 +10,7 @@ def generate_random_string():
 with open("run_script.txt", 'w') as f:
     for i in range(100):
         start = generate_random_string()
-        s = f'python3 sample.py --out_dir=out-shakespeare-char --start=$"{start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
+        s = f'python3 sample.py --out_dir=out-shakespeare-char --start="{start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
         f.write(s + '\n')
 
 
@@ -93,7 +93,7 @@ def print_real_time_output(process):
 for i in range(16, 17):
     avg_acc = []
     print('Data Size: ', i)
-    for j in range(5):
+    for j in range(1):
         print("ROUND", j + 1)
         get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
         
