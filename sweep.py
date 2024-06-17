@@ -20,12 +20,13 @@ def checkString(str_list):
     correct = 0
     wrong = 0
     for s in str_list:
-        if s[len(s)] != '\n':
+        if s[-1] != '\n':
             correct += 1 
         else:
             wrong += 1
 
     return correct / 10
+
 
 # Run the script that includes all the commands for running the samples
 def read_script(file):
@@ -88,8 +89,6 @@ def print_real_time_output(process):
         print(line.strip())
     for line in iter(process.stderr.readline, ''):
         print(line.strip())
-
-
 
 for i in range(128, 129):
     avg_acc = []
