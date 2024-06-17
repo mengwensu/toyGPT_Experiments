@@ -6,32 +6,31 @@ import os
 def generate_random_string():
     return ''.join(random.choice('ABCD') for _ in range(3))
 
+def get_script():
+    with open("run_script.txt", 'w') as f:
+        for i in range(100):
+            start = generate_random_string()
+            # python sample.py --out_dir=out-shakespeare-char --start="ABC" --num_samples=10 --max_new_tokens=2 --device=cpu
 
-with open("run_script.txt", 'w') as f:
-    for i in range(100):
-        start = generate_random_string()
-        # python sample.py --out_dir=out-shakespeare-char --start="ABC" --num_samples=10 --max_new_tokens=2 --device=cpu
 
-
-        s = f'python3 sample.py --out_dir=out-shakespeare-char --start="{start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
-        f.write(s + '\n')
+            s = f'python3 sample.py --out_dir=out-shakespeare-char --start="{start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
+            f.write(s + '\n')
+        
 
 
 # Check if the string is the correct or wrong output
 def checkString(str_list):
-    
     correct = 0
     wrong = 0
     for s in str_list:
         if s[-1] != '\n':
-            correct += 1 
+            correct += 1
         else:
             wrong += 1
-
     return correct / 10
 
-
 # Run the script that includes all the commands for running the samples
+
 def read_script(file):
     accuracy_list = []
     ind = 0
@@ -39,34 +38,33 @@ def read_script(file):
     with open(file, 'r') as f:
         commands = f.readlines()
 
-        for command in commands:
-            print(command)
-            try:
-                # Execute the command
-                result = subprocess.Popen(command.strip(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                stdout, stderr = result.communicate()
+    for command in commands:
+        print(f"Executing command: {command.strip()}")
+        try:
+            # Execute the command
+            result = subprocess.Popen(command.strip(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+            stdout, stderr = result.communicate()
 
-                if result.returncode != 0:
-                    print(f"Error executing command: {stderr}")
-                    continue
-                
+            if result.returncode != 0:
+                print(f"Error executing command: {stderr}")
+                continue
 
-                # Parse the relevant information
-                matches = re.findall(r'([A-Z\n]+)\n-{7}', stdout)
+            # Debug print the stdout to see what is being parsed
+            # print(f"Command output:\n{stdout}")
 
-                # letters_list = [match.strip() for match in matches]
-                
-                print("Index: ", ind)
-                ind += 1
-                # All the string generated from the 10 samples
-                # print(letters_list)
-                print(matches)
-                # Check the accuracy
-                accuracy = checkString(matches)
-                print("Accuracy:", accuracy)
-                accuracy_list.append(accuracy)
-            except Exception as e:
-                print(f"Exception occurred: {e}")
+            # Parse the relevant information
+            matches = re.findall(r'([A-Z]+)\n-{7}', stdout)
+            
+            print(f"Index: {ind}")
+            ind += 1
+            print(f"Matches: {matches}")
+
+            # Check the accuracy
+            accuracy = checkString(matches)
+            print(f"Accuracy: {accuracy}")
+            accuracy_list.append(accuracy)
+        except Exception as e:
+            print(f"Exception occurred: {e}")
 
     # Calculate average accuracy
     average_accuracy = sum(accuracy_list) / len(accuracy_list) if accuracy_list else 0
@@ -93,12 +91,15 @@ def print_real_time_output(process):
         print(line.strip())
 
 
+# _, acc = read_script('run_script.txt')
+
 
 for i in range(16, 17):
     avg_acc = []
     print('Data Size: ', i)
-    for j in range(1):
+    for j in range(5):
         print("ROUND", j + 1)
+        get_script()
         get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
         
         # Run prepare.py
@@ -115,7 +116,7 @@ for i in range(16, 17):
             # sample_run1 = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
             # print(sample_run1.stdout)
 
-            # Adjust the block size``
+            # Adjust the block size
 
             block_size = i // 2 - 1
             blk_str = f'--block_size={block_size}' 
