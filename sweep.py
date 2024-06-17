@@ -16,11 +16,11 @@ with open("run_script.txt", 'w') as f:
 
 # Check if the string is the correct or wrong output
 def checkString(str_list):
-
+    
     correct = 0
     wrong = 0
     for s in str_list:
-        if len(s) == 4:
+        if s(len(s)) != '\n':
             correct += 1 
         else:
             wrong += 1
