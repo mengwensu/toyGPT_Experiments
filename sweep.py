@@ -10,7 +10,7 @@ def generate_random_string():
 with open("run_script.txt", 'w') as f:
     for i in range(100):
         start = generate_random_string()
-        s = f'python3 sample.py --out_dir=out-shakespeare-char --start="${start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
+        s = f'python3 sample.py --out_dir=out-shakespeare-char --start=$"{start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
         f.write(s + '\n')
 
 
