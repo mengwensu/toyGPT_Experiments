@@ -13,7 +13,7 @@ def get_script():
             # python sample.py --out_dir=out-shakespeare-char --start="ABC" --num_samples=10 --max_new_tokens=2 --device=cpu
 
 
-            s = f'python3 sample.py --out_dir=out-shakespeare-char --start="{start}" --num_samples=10 --max_new_tokens=1 --device=cpu'
+            s = f'python3 sample.py --out_dir=out-shakespeare-char --start="{start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
             f.write(s + '\n')
         
 
