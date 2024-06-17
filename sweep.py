@@ -10,7 +10,7 @@ def generate_random_string():
 with open("run_script.txt", 'w') as f:
     for i in range(100):
         start = generate_random_string()
-        s = f'python3 sample.py --out_dir=out-shakespeare-char --start="{start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
+        s = f'python3 sample.py --out_dir=out-shakespeare-char --start="${start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
         f.write(s + '\n')
 
 
@@ -45,17 +45,19 @@ def read_script(file):
                 if result.returncode != 0:
                     print(f"Error executing command: {stderr}")
                     continue
+                
 
                 # Parse the relevant information
                 matches = re.findall(r'([A-Z\n]+)\n-{7}', stdout)
-                letters_list = [match.strip() for match in matches]
+
+                # letters_list = [match.strip() for match in matches]
                 
                 print("Index: ", ind)
                 ind += 1
                 # All the string generated from the 10 samples
-                print(letters_list)
+                print(matches)
                 # Check the accuracy
-                accuracy = checkString(letters_list)
+                accuracy = checkString(matches)
                 print("Accuracy:", accuracy)
                 accuracy_list.append(accuracy)
             except Exception as e:
@@ -89,7 +91,7 @@ def print_real_time_output(process):
 
 
 
-for i in range(256, 257):
+for i in range(128, 129):
     avg_acc = []
     print('Data Size: ', i)
     for j in range(5):
