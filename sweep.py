@@ -10,64 +10,54 @@ def get_script():
     with open("run_script.txt", 'w') as f:
         for i in range(100):
             start = generate_random_string()
-            # python sample.py --out_dir=out-shakespeare-char --start="ABC" --num_samples=10 --max_new_tokens=2 --device=cpu
-
-
             s = f'python3 sample.py --out_dir=out-shakespeare-char --start="{start}" --num_samples=10 --max_new_tokens=1 --device=cuda'
             f.write(s + '\n')
-        
 
 
 # Check if the string is the correct or wrong output
 def checkString(str_list):
+
     correct = 0
     wrong = 0
     for s in str_list:
         if s[-1] != '\n':
-            correct += 1
+            correct += 1 
         else:
             wrong += 1
+
     return correct / 10
 
 # Run the script that includes all the commands for running the samples
-
 def read_script(file):
+    
     accuracy_list = []
     ind = 0
-
     with open(file, 'r') as f:
         commands = f.readlines()
 
-    for command in commands:
-        print(f"Executing command: {command.strip()}")
-        try:
-            # Execute the command
-            result = subprocess.Popen(command.strip(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
-            stdout, stderr = result.communicate()
+        for command in commands:
+            print(command)
+            try:
+                # parse the relevant information 
+                result = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
 
-            if result.returncode != 0:
-                print(f"Error executing command: {stderr}")
-                continue
-
-            # Debug print the stdout to see what is being parsed
-            # print(f"Command output:\n{stdout}")
-
-            # Parse the relevant information
-            matches = re.findall(r'([A-Z]+)\n-{7}', stdout)
-            
-            print(f"Index: {ind}")
-            ind += 1
-            print(f"Matches: {matches}")
-
-            # Check the accuracy
-            accuracy = checkString(matches)
-            print(f"Accuracy: {accuracy}")
-            accuracy_list.append(accuracy)
-        except Exception as e:
-            print(f"Exception occurred: {e}")
+                #letters_list = re.findall(r'tensor\(\[\[.*?\]\]\)\n([A-Za-z]+)', result.stdout)
+                matches = re.findall(r'([A-Z\n]+)\n-{7}', result.stdout)
+                # letters_list = [match.strip() for match in matches]
+                print("Index: ", ind)
+                ind += 1
+                # All the string generate from the 10 samples
+                print(matches)
+                # Check the accuracy
+                accuracy = checkString(matches)
+                print("Accuracy:", accuracy)
+                accuracy_list.append(accuracy)
+            except subprocess.CalledProcessError as e:
+                print(f"Error executing command: {e}")
 
     # Calculate average accuracy
     average_accuracy = sum(accuracy_list) / len(accuracy_list) if accuracy_list else 0
+    # print("Average Accuracy:", average_accuracy)
     return accuracy_list, average_accuracy
 
 
@@ -82,6 +72,8 @@ def get_new_training_set(dataset, size):
             f.write(i)
 
 
+# get_new_training_set("data/shakespeare_char/full_dataset.txt",0)
+# read_script("run_script.txt")
 
 def print_real_time_output(process):
     # Ensure that output from the process is processed correctly
@@ -91,26 +83,24 @@ def print_real_time_output(process):
         print(line.strip())
 
 
-# _, acc = read_script('run_script.txt')
+# get_new_training_set("data/shakespeare_char/full_dataset.txt", 256)
 
 
-for i in range(16, 17):
+for i in range(16, 17 ):
     avg_acc = []
-    print('Data Size: ', i)
-    for j in range(1):
-        print("ROUND", j + 1)
-        get_script()
+    for _ in range(5):
+        print('Data Size: ', i)
         get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
-        print("After get new training set")
-        
+        get_script()
+        print('after get script')
         # Run prepare.py
         command = 'python3 data/shakespeare_char/prepare.py'
         prepare_run = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
         print(prepare_run.stdout)
-        print("after prepare")
+        print('after prepare')
+
         # If block size if less than default 32, find a smaller block size 
         if i <= 64:
-            print("In <= 64")
             # block_size = i / 2 -1
             # blk_str = '--block_size=' + block_size
             # command = ['python3', 'train.py', 'config/train_shakespeare_char.py', blk_str]
@@ -118,7 +108,7 @@ for i in range(16, 17):
             # sample_run1 = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
             # print(sample_run1.stdout)
 
-            # Adjust the block size
+            # Adjust the block size``
 
             block_size = i // 2 - 1
             blk_str = f'--block_size={block_size}' 
@@ -131,8 +121,6 @@ for i in range(16, 17):
             print_real_time_output(train_run1)
             train_run1.wait()
         else:
-            print("In >= 64")
-
             # command = ['python3', 'train.py', 'config/train_shakespeare_char.py', '--block_size=32']
             # print('block size:', 32)
             # sample_run2 = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
@@ -147,22 +135,26 @@ for i in range(16, 17):
             train_run2.wait()
             
         # Read accuracy from run_script.txt
-        print("before read script")
+        print('before run script')
         _, acc = read_script('run_script.txt')
-        print(i, "round", j + 1, "average acc:", acc)
+        print('after run script')
+
+        print(i, "round", j, "avg acc:", acc)
         avg_acc.append(acc)
-        
+
         # After done with the testing the samples for the current trained dataset, delete ckpt.pkl file
         try:
             os.remove('out-shakespeare-char/ckpt.pt')
             print("Deleted ckpt.pt")
         except FileNotFoundError:
             print("File ckpt.pt not found")
+            
 
     # Write results to log.txt
-
     overall_acc = sum(avg_acc) / 5
-    print(i, "Overall Average Accuracy:", overall_acc)
+    print(i, "Overall Average Accuracy:", overall_acc )
     with open('log.txt', 'a') as f:
-        l = f"{i},{overall_acc}\n"
+        l = f"{i},{sum(avg_acc) / 5}\n"
         f.write(l)
+
+
