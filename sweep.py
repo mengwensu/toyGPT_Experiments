@@ -27,39 +27,44 @@ def checkString(str_list):
 
     return correct / 10
 
-# Run the script that includes all the commands for running the samples
 def read_script(file):
-    
     accuracy_list = []
     ind = 0
+
     with open(file, 'r') as f:
         commands = f.readlines()
 
-        for command in commands:
-            print(command)
-            try:
-                # parse the relevant information 
-                result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
+    for command in commands:
+        print(f"Executing command: {command.strip()}")
+        try:
+            # Execute the command
+            result = subprocess.Popen(command.strip(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+            stdout, stderr = result.communicate()
 
-                #letters_list = re.findall(r'tensor\(\[\[.*?\]\]\)\n([A-Za-z]+)', result.stdout)
-                matches = re.findall(r'([A-Z\n]+)\n-{7}', result.stdout)
-                # letters_list = [match.strip() for match in matches]
-                print("Index: ", ind)
-                ind += 1
-                # All the string generate from the 10 samples
-                print(matches)
-                # Check the accuracy
-                accuracy = checkString(matches)
-                print("Accuracy:", accuracy)
-                accuracy_list.append(accuracy)
-            except subprocess.CalledProcessError as e:
-                print(f"Error executing command: {e}")
+            if result.returncode != 0:
+                print(f"Error executing command: {stderr}")
+                continue
+
+            # Debug print the stdout to see what is being parsed
+            print(f"Command output:\n{stdout}")
+
+            # Parse the relevant information
+            matches = re.findall(r'([A-Z]+)\n-{7}', stdout)
+            
+            print(f"Index: {ind}")
+            ind += 1
+            print(f"Matches: {matches}")
+
+            # Check the accuracy
+            accuracy = checkString(matches)
+            print(f"Accuracy: {accuracy}")
+            accuracy_list.append(accuracy)
+        except Exception as e:
+            print(f"Exception occurred: {e}")
 
     # Calculate average accuracy
     average_accuracy = sum(accuracy_list) / len(accuracy_list) if accuracy_list else 0
-    # print("Average Accuracy:", average_accuracy)
     return accuracy_list, average_accuracy
-
 
 def get_new_training_set(dataset, size):
     with open(dataset, 'r') as f:
@@ -86,9 +91,10 @@ def print_real_time_output(process):
 # get_new_training_set("data/shakespeare_char/full_dataset.txt", 256)
 
 
-for i in range(16, 17 ):
+for i in range(204, 205):
     avg_acc = []
-    for _ in range(5):
+    for j in range(5):
+        print("ROUND", j)
         print('Data Size: ', i)
         get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
         get_script()
@@ -151,6 +157,7 @@ for i in range(16, 17 ):
             
 
     # Write results to log.txt
+    print('writing to log')
     overall_acc = sum(avg_acc) / 5
     print(i, "Overall Average Accuracy:", overall_acc )
     with open('log.txt', 'a') as f:
