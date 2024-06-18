@@ -39,7 +39,7 @@ def read_script(file):
             print(command)
             try:
                 # parse the relevant information 
-                result = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
+                result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
 
                 #letters_list = re.findall(r'tensor\(\[\[.*?\]\]\)\n([A-Za-z]+)', result.stdout)
                 matches = re.findall(r'([A-Z\n]+)\n-{7}', result.stdout)
