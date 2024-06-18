@@ -101,14 +101,16 @@ for i in range(16, 17):
         print("ROUND", j + 1)
         get_script()
         get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
+        print("After get new training set")
         
         # Run prepare.py
         command = 'python3 data/shakespeare_char/prepare.py'
         prepare_run = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
         print(prepare_run.stdout)
-
+        print("after prepare")
         # If block size if less than default 32, find a smaller block size 
         if i <= 64:
+            print("In <= 64")
             # block_size = i / 2 -1
             # blk_str = '--block_size=' + block_size
             # command = ['python3', 'train.py', 'config/train_shakespeare_char.py', blk_str]
@@ -129,6 +131,8 @@ for i in range(16, 17):
             print_real_time_output(train_run1)
             train_run1.wait()
         else:
+            print("In >= 64")
+
             # command = ['python3', 'train.py', 'config/train_shakespeare_char.py', '--block_size=32']
             # print('block size:', 32)
             # sample_run2 = subprocess.run(command.strip(), shell=True, check=True, capture_output=True, text=True)
@@ -143,6 +147,7 @@ for i in range(16, 17):
             train_run2.wait()
             
         # Read accuracy from run_script.txt
+        print("before read script")
         _, acc = read_script('run_script.txt')
         print(i, "round", j + 1, "average acc:", acc)
         avg_acc.append(acc)
