@@ -80,8 +80,6 @@ if start.startswith('FILE:'):
 start_ids = encode(start)
 x = (torch.tensor(start_ids, dtype=torch.long, device=device)[None, ...])
 
-
-
 # run generation
 with torch.no_grad():
     with ctx:
