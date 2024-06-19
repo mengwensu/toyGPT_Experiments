@@ -91,10 +91,10 @@ def print_real_time_output(process):
 # get_new_training_set("data/shakespeare_char/full_dataset.txt", 256)
 
 
-for i in range(204, 205):
+for i in range(90, 267):
     avg_acc = []
     for j in range(5):
-        print("ROUND", j)
+        print("ROUND", j+1)
         print('Data Size: ', i)
         get_new_training_set('data/shakespeare_char/full_dataset.txt', i)
         get_script()
@@ -145,7 +145,7 @@ for i in range(204, 205):
         _, acc = read_script('run_script.txt')
         print('after run script')
 
-        print(i, "round", j, "avg acc:", acc)
+        print(i, "round", j+1, "avg acc:", acc)
         avg_acc.append(acc)
 
         # After done with the testing the samples for the current trained dataset, delete ckpt.pkl file
