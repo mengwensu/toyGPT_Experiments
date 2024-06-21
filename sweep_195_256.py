@@ -25,7 +25,7 @@ def checkString(str_list):
         else:
             wrong += 1
 
-    return correct / len(str_list)
+    return correct / 100
 
 def read_script(file):
     accuracy_list = []
@@ -162,9 +162,9 @@ for i in range(194, 257):
     print('writing to log')
     overall_acc = sum(avg_acc) / 2
     print(i, "Overall Average Accuracy:", overall_acc )
-    with open('log_194_257.txt', 'a') as f:
+    with open('log_194_256.txt', 'a') as f:
         if err == 1:
-            l = f"{i},{overall_acc}\n"
+            l = f"{i},{overall_acc} ckpt error\n"
         else:
             l = f"{i},{overall_acc}\n"
         f.write(l)

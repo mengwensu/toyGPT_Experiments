@@ -25,7 +25,7 @@ def checkString(str_list):
         else:
             wrong += 1
 
-    return correct / len(str_list)
+    return correct / 100
 
 def read_script(file):
     accuracy_list = []
@@ -93,7 +93,7 @@ def print_real_time_output(process):
 # get_new_training_set("data/shakespeare_char/full_dataset.txt", 256)
 
 
-for i in range(194, 257):
+for i in range(65, 130):
     avg_acc = []
     for j in range(2):
         print("ROUND", j+1)
@@ -162,9 +162,9 @@ for i in range(194, 257):
     print('writing to log')
     overall_acc = sum(avg_acc) / 2
     print(i, "Overall Average Accuracy:", overall_acc )
-    with open('log_194_257.txt', 'a') as f:
+    with open('log_65_129.txt', 'a') as f:
         if err == 1:
-            l = f"{i},{overall_acc}\n"
+            l = f"{i},{overall_acc} ckpt error\n"
         else:
             l = f"{i},{overall_acc}\n"
         f.write(l)
